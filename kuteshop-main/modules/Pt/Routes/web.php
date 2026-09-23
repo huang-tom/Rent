@@ -133,4 +133,46 @@ $router->group(['prefix' => 'manage/pt', 'namespace' => 'Manage', 'middleware' =
     $router->get('/productItem/getStockBillItems', 'ProductItemController@getStockBillItems');
     $router->get('/productItem/getStockWarningItems', 'ProductItemController@getStockWarningItems');
 
+    //新商品（独立主表 pt_new_product）
+    $router->get('/newProduct/list', 'NewProductController@list');
+    $router->get('/newProduct/statistics', 'NewProductController@statistics');
+    $router->get('/newProduct/get', 'NewProductController@get');
+    $router->post('/newProduct/save', 'NewProductController@save');
+    $router->post('/newProduct/remove', 'NewProductController@remove');
+    $router->post('/newProduct/editState', 'NewProductController@editState');
+    $router->post('/newProduct/audit', 'NewProductController@audit');
+    $router->post('/newProduct/batchEditState', 'NewProductController@batchEditState');
+    $router->post('/newProduct/batchAudit', 'NewProductController@batchAudit');
+
+    //新商品-租期档位
+    $router->get('/newProductRentPeriod/list', 'NewProductRentPeriodController@list');
+    $router->post('/newProductRentPeriod/add', 'NewProductRentPeriodController@add');
+    $router->post('/newProductRentPeriod/edit', 'NewProductRentPeriodController@edit');
+    $router->post('/newProductRentPeriod/remove', 'NewProductRentPeriodController@remove');
+    $router->post('/newProductRentPeriod/editState', 'NewProductRentPeriodController@editState');
+
+    //新商品-推广分类
+    $router->get('/newProductPromoCate/list', 'NewProductPromoCateController@list');
+    $router->post('/newProductPromoCate/add', 'NewProductPromoCateController@add');
+    $router->post('/newProductPromoCate/edit', 'NewProductPromoCateController@edit');
+    $router->post('/newProductPromoCate/remove', 'NewProductPromoCateController@remove');
+    $router->post('/newProductPromoCate/editState', 'NewProductPromoCateController@editState');
+
+    //新商品-推广商品
+    $router->get('/newProductPromo/list', 'NewProductPromoController@list');
+    $router->post('/newProductPromo/add', 'NewProductPromoController@add');
+    $router->post('/newProductPromo/remove', 'NewProductPromoController@remove');
+    $router->post('/newProductPromo/editSort', 'NewProductPromoController@editSort');
+
+    //新商品-评论
+    $router->get('/newProductComment/list', 'NewProductCommentController@list');
+    $router->get('/newProductComment/statistics', 'NewProductCommentController@statistics');
+    $router->post('/newProductComment/add', 'NewProductCommentController@add');
+    $router->post('/newProductComment/edit', 'NewProductCommentController@edit');
+    $router->post('/newProductComment/audit', 'NewProductCommentController@audit');
+    $router->post('/newProductComment/remove', 'NewProductCommentController@remove');
+    $router->post('/newProductComment/addReply', 'NewProductCommentController@addReply');
+    $router->post('/newProductComment/editReply', 'NewProductCommentController@editReply');
+    $router->post('/newProductComment/removeReply', 'NewProductCommentController@removeReply');
+
 });
