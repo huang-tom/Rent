@@ -1,0 +1,1013 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-newproduct0001",
+    "name": "新商品模块 API（NewProduct）",
+    "description": "后台 manage/pt 新商品相关接口。\n\n**通用说明**\n- 前缀：`{{baseUrl}}/manage/pt`\n- 鉴权：需登录（middleware auth），可将 `api_token` 放在 Query 或按项目约定传 Token\n- 统一成功响应：`{ status, code, msg, data }`\n- 列表分页（转换后）：`items` 列表、`page` 当前页、`records` 总条数、`size` 每页条数、`total` 总页数\n- 时间字段：`datetime` 字符串，如 `2026-09-24 10:00:00`\n\n**变量**\n- `baseUrl`：如 `http://127.0.0.1:8000`\n- `api_token`：登录后拿到的 token",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://127.0.0.1:8000" },
+    { "key": "api_token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. 新商品管理",
+      "description": "商品 CRUD、审核、上下架、统计",
+      "item": [
+        {
+          "name": "商品列表",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProduct/list?api_token={{api_token}}&page=1&size=20&keyword=&category_id=&sale_mode=&status=",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProduct", "list"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}", "description": "登录 Token" },
+                { "key": "page", "value": "1", "description": "页码，从 1 开始" },
+                { "key": "size", "value": "20", "description": "每页条数" },
+                { "key": "keyword", "value": "", "description": "关键字：商品名称 / 商品编号（模糊）", "disabled": true },
+                { "key": "category_id", "value": "", "description": "分类 ID", "disabled": true },
+                { "key": "sale_mode", "value": "", "description": "销售方式：1仅购买；2仅租赁；3购买+租赁", "disabled": true },
+                { "key": "status", "value": "", "description": "状态：1上架；0下架；2待审核", "disabled": true }
+              ]
+            },
+            "description": "## 商品列表\n\n### 请求字段\n| 字段 | 类型 | 必填 | 说明 |\n|------|------|------|------|\n| page | int | 否 | 页码 |\n| size | int | 否 | 每页条数 |\n| keyword | string | 否 | 名称/编号模糊搜索 |\n| category_id | int | 否 | 分类 ID |\n| sale_mode | int | 否 | 1仅购买 / 2仅租赁 / 3购买+租赁 |\n| status | int | 否 | 1上架 / 0下架 / 2待审核 |\n\n### 返回 data（分页）\n| 字段 | 类型 | 说明 |\n|------|------|------|\n| items | array | 商品列表 |\n| items[].product_id | int | 商品 ID |\n| items[].product_name | string | 商品名称 |\n| items[].product_number | string | 商品编号 |\n| items[].category_id | int | 分类 ID |\n| items[].category_name | string | 分类名称 |\n| items[].sale_mode | int | 销售方式 |\n| items[].sale_mode_text | string | 销售方式文案 |\n| items[].product_state | int | 上下架：1上架 0下架 |\n| items[].audit_status | int | 审核：0待审 1通过 |\n| items[].status_text | string | 展示状态文案 |\n| items[].sale_price | decimal | 销售价 |\n| items[].daily_rent | decimal | 日租金 |\n| items[].product_image | string | 主图 |\n| page / records / size / total | int | 分页信息 |"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "originalRequest": {
+                "method": "GET",
+                "url": "{{baseUrl}}/manage/pt/newProduct/list?page=1&size=20"
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"操作成功\",\n  \"data\": {\n    \"items\": [\n      {\n        \"product_id\": 1,\n        \"product_name\": \"折叠桌\",\n        \"product_number\": \"PD-20260924-1\",\n        \"category_id\": 10,\n        \"category_name\": \"桌椅\",\n        \"sale_mode\": 3,\n        \"sale_mode_text\": \"购买+租赁\",\n        \"product_state\": 0,\n        \"audit_status\": 0,\n        \"status_text\": \"待审核\",\n        \"sale_price\": \"199.00\",\n        \"daily_rent\": \"5.00\",\n        \"product_image\": \"https://example.com/a.jpg\",\n        \"product_add_time\": \"2026-09-24 10:00:00\",\n        \"product_update_time\": \"2026-09-24 10:00:00\"\n      }\n    ],\n    \"page\": 1,\n    \"records\": 1,\n    \"size\": 20,\n    \"total\": 1\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "商品统计",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProduct/statistics?api_token={{api_token}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProduct", "statistics"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" }
+              ]
+            },
+            "description": "## 商品顶部统计\n\n### 请求字段\n无业务参数\n\n### 返回 data\n| 字段 | 类型 | 说明 |\n|------|------|------|\n| total_count | int | 商品总数（未删除） |\n| buy_rent_count | int | 购买+租赁数量 |\n| buyable_count | int | 可购买（含仅购/购+租） |\n| buyable_on_sale_count | int | 可购买且已上架 |\n| rentable_count | int | 可租赁 |\n| rentable_on_sale_count | int | 可租赁且已上架 |\n| pending_audit_count | int | 待审核数 |"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"操作成功\",\n  \"data\": {\n    \"total_count\": 100,\n    \"buy_rent_count\": 30,\n    \"buyable_count\": 80,\n    \"buyable_on_sale_count\": 50,\n    \"rentable_count\": 40,\n    \"rentable_on_sale_count\": 20,\n    \"pending_audit_count\": 5\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "商品详情",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProduct/get?api_token={{api_token}}&product_id=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProduct", "get"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" },
+                { "key": "product_id", "value": "1", "description": "商品 ID，必填" }
+              ]
+            },
+            "description": "## 商品详情（编辑回显）\n\n### 请求字段\n| 字段 | 类型 | 必填 | 说明 |\n|------|------|------|------|\n| product_id | int | 是 | 商品 ID |\n\n### 返回 data 主要字段\n| 字段 | 类型 | 说明 |\n|------|------|------|\n| product_id | int | 商品 ID |\n| product_name / product_number | string | 名称 / 编号 |\n| category_id / category_name | | 分类 |\n| warehouse_ids | string | 仓库 ID 逗号串 |\n| warehouse_id_list | array | 仓库 ID 数组（回显用） |\n| sale_mode | int | 1/2/3 |\n| sale_price / market_price / unit | | 购买字段 |\n| deposit / daily_rent / cycle_type / settle_policy / need_tier_price | | 租赁字段 |\n| stock_total / stock_warning / sale_num | int | 库存相关（仅维护） |\n| spec_json / spec_list | | 规格 |\n| rent_prices | array | 租期定价列表 |\n| rent_prices[].period_id | int | 档位 ID |\n| rent_prices[].period_name | string | 档位名 |\n| rent_prices[].period_days | int | 天数 |\n| rent_prices[].total_rent | decimal | 合计租金 |\n| rent_prices[].daily_rent | decimal | 日租金 |\n| product_state / audit_status / status_text | | 状态 |"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"操作成功\",\n  \"data\": {\n    \"product_id\": 1,\n    \"product_name\": \"折叠桌\",\n    \"product_number\": \"PD-20260924-1\",\n    \"category_id\": 10,\n    \"category_name\": \"桌椅\",\n    \"warehouse_ids\": \"1,2\",\n    \"warehouse_id_list\": [\"1\", \"2\"],\n    \"sale_mode\": 3,\n    \"sale_mode_text\": \"购买+租赁\",\n    \"sale_price\": \"199.00\",\n    \"market_price\": \"299.00\",\n    \"unit\": \"张\",\n    \"deposit\": \"100.00\",\n    \"daily_rent\": \"5.00\",\n    \"need_tier_price\": 1,\n    \"stock_total\": 50,\n    \"stock_warning\": 5,\n    \"sale_num\": 0,\n    \"spec_list\": [],\n    \"rent_prices\": [\n      {\n        \"id\": 1,\n        \"period_id\": 1,\n        \"period_name\": \"7天\",\n        \"period_days\": 7,\n        \"total_rent\": \"35.00\",\n        \"daily_rent\": \"5.00\"\n      }\n    ],\n    \"product_state\": 0,\n    \"audit_status\": 0,\n    \"status_text\": \"待审核\",\n    \"product_add_time\": \"2026-09-24 10:00:00\",\n    \"product_update_time\": \"2026-09-24 10:00:00\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "商品保存（新增/编辑）",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": 0,\n  \"product_name\": \"折叠桌\",\n  \"category_id\": 10,\n  \"warehouse_ids\": [1, 2],\n  \"product_image\": \"https://example.com/a.jpg\",\n  \"product_intro\": \"轻便可折叠\",\n  \"sale_mode\": 3,\n  \"sale_price\": 199,\n  \"market_price\": 299,\n  \"unit\": \"张\",\n  \"deposit\": 100,\n  \"daily_rent\": 5,\n  \"cycle_type\": 0,\n  \"settle_policy\": 0,\n  \"need_tier_price\": 1,\n  \"stock_total\": 50,\n  \"stock_warning\": 5,\n  \"spec_json\": [],\n  \"rent_prices\": [\n    { \"period_id\": 1, \"total_rent\": 35, \"daily_rent\": 5 },\n    { \"period_id\": 2, \"total_rent\": 90, \"daily_rent\": 3 }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProduct/save?api_token={{api_token}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProduct", "save"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" }
+              ]
+            },
+            "description": "## 商品保存（新增/编辑）\n\n`product_id` 为空或 0 为新增；有值且存在为编辑。\n新增默认：待审核 + 下架，自动生成 `product_number`（PD-日期-序号）。\n编辑不改：上下架、审核状态、商品编号。\n\n### 请求字段\n| 字段 | 类型 | 必填 | 说明 |\n|------|------|------|------|\n| product_id | int | 否 | 有值则编辑 |\n| product_name | string | 是 | 商品名称，≤100 |\n| sale_mode | int | 是 | 1仅购买 / 2仅租赁 / 3购买+租赁 |\n| category_id | int | 否 | 分类 ID |\n| warehouse_ids | string/array | 否 | 仓库 ID |\n| product_image | string | 否 | 主图 URL |\n| product_intro | string | 否 | 简介 |\n| sale_price / market_price / unit | | 购买时 | 销售价/划线价/单位 |\n| deposit / daily_rent / cycle_type / settle_policy / need_tier_price | | 租赁时 | 押金/日租等 |\n| rent_prices | array | 租赁时建议 | `[{period_id,total_rent,daily_rent}]`，金额前端算好 |\n| stock_total / stock_warning / sale_num | int | 否 | 库存相关；sale_num 未传则编辑不覆盖 |\n| spec_json | string/array | 否 | 规格 JSON |\n\n### 返回 data\n| 字段 | 类型 | 说明 |\n|------|------|------|\n| product_id | int | 商品 ID |"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"操作成功\",\n  \"data\": {\n    \"product_id\": 1\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "商品删除",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "product_id", "value": "1", "description": "商品 ID" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProduct/remove?api_token={{api_token}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProduct", "remove"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" }
+              ]
+            },
+            "description": "## 商品软删除\n\n### 请求字段\n| 字段 | 类型 | 必填 | 说明 |\n|------|------|------|------|\n| product_id | int | 是 | 商品 ID |\n\n### 返回 data\n`true`"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"操作成功\",\n  \"data\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "商品上下架",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "product_id", "value": "1", "description": "商品 ID" },
+                { "key": "product_state", "value": "1", "description": "1上架 / 0下架；上架须已审核通过" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProduct/editState?api_token={{api_token}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProduct", "editState"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" }
+              ]
+            },
+            "description": "## 商品上下架\n\n须已审核通过才能上架。\n\n### 请求字段\n| 字段 | 类型 | 必填 | 说明 |\n|------|------|------|------|\n| product_id | int | 是 | 商品 ID |\n| product_state | int | 是 | 1上架 / 0下架 |\n\n### 返回 data\n`true`"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"操作成功\",\n  \"data\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "商品审核通过",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "product_id", "value": "1", "description": "商品 ID" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProduct/audit?api_token={{api_token}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProduct", "audit"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" }
+              ]
+            },
+            "description": "## 商品审核通过\n\n### 请求字段\n| 字段 | 类型 | 必填 | 说明 |\n|------|------|------|------|\n| product_id | int | 是 | 商品 ID |\n\n### 返回 data\n`true`"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"操作成功\",\n  \"data\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "商品批量上下架",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_ids\": [1, 2, 3],\n  \"product_state\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProduct/batchEditState?api_token={{api_token}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProduct", "batchEditState"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" }
+              ]
+            },
+            "description": "## 批量上下架\n\n不符合条件的商品会跳过（如未审核不能上架）。\n\n### 请求字段\n| 字段 | 类型 | 必填 | 说明 |\n|------|------|------|------|\n| product_ids | array/string | 是 | ID 数组或逗号串 |\n| product_state | int | 是 | 1上架 / 0下架 |\n\n### 返回\n| 字段 | 说明 |\n|------|------|\n| data | 成功更新数量 |\n| msg | 如：成功更新了2个商品 |"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"成功更新了2个商品\",\n  \"data\": 2\n}"
+            }
+          ]
+        },
+        {
+          "name": "商品批量审核",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_ids\": [1, 2, 3]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProduct/batchAudit?api_token={{api_token}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProduct", "batchAudit"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" }
+              ]
+            },
+            "description": "## 批量审核\n\n### 请求字段\n| 字段 | 类型 | 必填 | 说明 |\n|------|------|------|------|\n| product_ids | array/string | 是 | ID 数组或逗号串 |\n\n### 返回\n| 字段 | 说明 |\n|------|------|\n| data | 成功审核数量 |\n| msg | 如：成功审核了2个商品 |"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"成功审核了2个商品\",\n  \"data\": 2\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. 租期档位",
+      "description": "全局租期档位 CRUD / 启停",
+      "item": [
+        {
+          "name": "租期档位列表",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProductRentPeriod/list?api_token={{api_token}}&page=1&size=50&period_name=&period_enable=",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProductRentPeriod", "list"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" },
+                { "key": "page", "value": "1" },
+                { "key": "size", "value": "50" },
+                { "key": "period_name", "value": "", "description": "档位名称模糊", "disabled": true },
+                { "key": "period_enable", "value": "1", "description": "1启用 / 0禁用", "disabled": true }
+              ]
+            },
+            "description": "## 租期档位列表\n\n商品页勾选租期也走此接口。不返回已软删档位。\n\n### 请求字段\n| 字段 | 类型 | 必填 | 说明 |\n|------|------|------|------|\n| period_name | string | 否 | 名称模糊 |\n| period_enable | int | 否 | 1启用 / 0禁用 |\n\n### 返回 items 字段\n| 字段 | 说明 |\n|------|------|\n| period_id | 档位 ID |\n| period_name | 名称 |\n| period_days | 天数 |\n| period_enable | 是否启用 |\n| period_order | 排序，越小越前 |\n| add_time / update_time | 时间 |"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"操作成功\",\n  \"data\": {\n    \"items\": [\n      {\n        \"period_id\": 1,\n        \"period_name\": \"7天\",\n        \"period_days\": 7,\n        \"period_enable\": 1,\n        \"period_order\": 10,\n        \"add_time\": \"2026-09-24 10:00:00\",\n        \"update_time\": \"2026-09-24 10:00:00\"\n      }\n    ],\n    \"page\": 1,\n    \"records\": 1,\n    \"size\": 50,\n    \"total\": 1\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "租期档位新增",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"period_name\": \"7天\",\n  \"period_days\": 7,\n  \"period_enable\": 1,\n  \"period_order\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProductRentPeriod/add?api_token={{api_token}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProductRentPeriod", "add"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" }
+              ]
+            },
+            "description": "## 新增租期档位\n\n### 请求字段\n| 字段 | 类型 | 必填 | 说明 |\n|------|------|------|------|\n| period_name | string | 是 | 名称，≤50 |\n| period_days | int | 是 | 天数，≥1 |\n| period_enable | int | 否 | 默认 1 |\n| period_order | int | 否 | 默认 50 |\n\n### 返回 data\n新增后的档位记录（含 period_id）"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"操作成功\",\n  \"data\": {\n    \"period_id\": 1,\n    \"period_name\": \"7天\",\n    \"period_days\": 7,\n    \"period_enable\": 1,\n    \"period_order\": 10\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "租期档位编辑",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"period_id\": 1,\n  \"period_name\": \"7天\",\n  \"period_days\": 7,\n  \"period_enable\": 1,\n  \"period_order\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProductRentPeriod/edit?api_token={{api_token}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProductRentPeriod", "edit"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" }
+              ]
+            },
+            "description": "## 编辑租期档位\n\n### 请求字段\n| 字段 | 类型 | 必填 | 说明 |\n|------|------|------|------|\n| period_id | int | 是 | 档位 ID |\n| period_name | string | 是 | 名称 |\n| period_days | int | 是 | 天数 |\n| period_enable | int | 否 | 启停 |\n| period_order | int | 否 | 排序 |"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"操作成功\",\n  \"data\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "租期档位删除",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "period_id", "value": "1", "description": "档位 ID" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProductRentPeriod/remove?api_token={{api_token}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProductRentPeriod", "remove"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" }
+              ]
+            },
+            "description": "## 软删除租期档位\n\n软删并禁用；历史商品定价仍可通过 period_id 回显名称。\n\n### 请求字段\n| 字段 | 类型 | 必填 | 说明 |\n|------|------|------|------|\n| period_id | int | 是 | 档位 ID |"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"操作成功\",\n  \"data\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "租期档位启停",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "period_id", "value": "1" },
+                { "key": "period_enable", "value": "0", "description": "1启用 / 0禁用" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProductRentPeriod/editState?api_token={{api_token}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProductRentPeriod", "editState"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" }
+              ]
+            },
+            "description": "## 租期档位启停\n\n### 请求字段\n| 字段 | 类型 | 必填 | 说明 |\n|------|------|------|------|\n| period_id | int | 是 | 档位 ID |\n| period_enable | int | 是 | 1启用 / 0禁用 |"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"操作成功\",\n  \"data\": true\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. 推广分类",
+      "description": "推广菜单/分类 CRUD",
+      "item": [
+        {
+          "name": "推广分类列表",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProductPromoCate/list?api_token={{api_token}}&page=1&size=20&cate_name=&cate_type=&cate_enable=",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProductPromoCate", "list"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" },
+                { "key": "page", "value": "1" },
+                { "key": "size", "value": "20" },
+                { "key": "cate_name", "value": "", "description": "分类名称模糊", "disabled": true },
+                { "key": "cate_type", "value": "", "description": "1默认菜单 / 2分类菜单", "disabled": true },
+                { "key": "cate_enable", "value": "", "description": "1启用 / 0禁用", "disabled": true }
+              ]
+            },
+            "description": "## 推广分类列表\n\n### 请求字段\n| 字段 | 类型 | 必填 | 说明 |\n|------|------|------|------|\n| cate_name | string | 否 | 名称模糊 |\n| cate_type | int | 否 | 1默认菜单 / 2分类菜单 |\n| cate_enable | int | 否 | 启停 |\n\n### 返回 items 字段\n| 字段 | 说明 |\n|------|------|\n| cate_id | 分类 ID |\n| cate_name / cate_desc | 名称 / 说明 |\n| cate_type | 1默认 / 2分类菜单 |\n| category_id / category_name | 关联商品分类 |\n| is_system | 系统内置不可删 |\n| cate_enable / cate_sort | 启停 / 排序 |"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"操作成功\",\n  \"data\": {\n    \"items\": [\n      {\n        \"cate_id\": 1,\n        \"cate_name\": \"推荐\",\n        \"cate_desc\": \"按运营策略排序\",\n        \"cate_type\": 1,\n        \"category_id\": 0,\n        \"category_name\": \"\",\n        \"is_system\": 1,\n        \"cate_enable\": 1,\n        \"cate_sort\": 10\n      }\n    ],\n    \"page\": 1,\n    \"records\": 1,\n    \"size\": 20,\n    \"total\": 1\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "推广分类新增",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cate_name\": \"热门\",\n  \"cate_desc\": \"热门商品\",\n  \"cate_type\": 2,\n  \"category_id\": 10,\n  \"cate_enable\": 1,\n  \"cate_sort\": 20\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProductPromoCate/add?api_token={{api_token}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProductPromoCate", "add"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" }
+              ]
+            },
+            "description": "## 新增推广分类\n\n### 请求字段\n| 字段 | 类型 | 必填 | 说明 |\n|------|------|------|------|\n| cate_name | string | 是 | 名称，≤50 |\n| cate_desc | string | 否 | 说明 |\n| cate_type | int | 否 | 默认 2 分类菜单；1默认菜单 |\n| category_id | int | 否 | 关联商品分类 |\n| cate_enable | int | 否 | 默认 1 |\n| cate_sort | int | 否 | 默认 50 |"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"操作成功\",\n  \"data\": {\n    \"cate_id\": 2,\n    \"cate_name\": \"热门\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "推广分类编辑",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cate_id\": 2,\n  \"cate_name\": \"热门\",\n  \"cate_desc\": \"热门商品\",\n  \"category_id\": 10,\n  \"cate_enable\": 1,\n  \"cate_sort\": 20\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProductPromoCate/edit?api_token={{api_token}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProductPromoCate", "edit"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" }
+              ]
+            },
+            "description": "## 编辑推广分类\n\n编辑时不改 `is_system`、`cate_type`。\n\n### 请求字段\n| 字段 | 类型 | 必填 | 说明 |\n|------|------|------|------|\n| cate_id | int | 是 | 分类 ID |\n| cate_name | string | 是 | 名称 |\n| cate_desc / category_id / cate_enable / cate_sort | | 否 | 同新增 |"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"操作成功\",\n  \"data\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "推广分类删除",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "cate_id", "value": "2" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProductPromoCate/remove?api_token={{api_token}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProductPromoCate", "remove"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" }
+              ]
+            },
+            "description": "## 软删除推广分类\n\n系统内置（is_system=1）不可删；删除时会同步软删其下推广绑定。\n\n### 请求字段\n| 字段 | 类型 | 必填 | 说明 |\n|------|------|------|------|\n| cate_id | int | 是 | 分类 ID |"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"操作成功\",\n  \"data\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "推广分类启停",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "cate_id", "value": "2" },
+                { "key": "cate_enable", "value": "0" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProductPromoCate/editState?api_token={{api_token}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProductPromoCate", "editState"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" }
+              ]
+            },
+            "description": "## 推广分类启停\n\n### 请求字段\n| 字段 | 类型 | 必填 | 说明 |\n|------|------|------|------|\n| cate_id | int | 是 | 分类 ID |\n| cate_enable | int | 是 | 1启用 / 0禁用 |"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"操作成功\",\n  \"data\": true\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. 推广商品",
+      "description": "按推广分类绑定商品",
+      "item": [
+        {
+          "name": "推广商品列表",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProductPromo/list?api_token={{api_token}}&type=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProductPromo", "list"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" },
+                { "key": "type", "value": "1", "description": "推广分类 ID（cate_id），必填" }
+              ]
+            },
+            "description": "## 按分类读取推广商品\n\n只返回未删除商品；排序 sort ASC, id ASC。\n\n### 请求字段\n| 字段 | 类型 | 必填 | 说明 |\n|------|------|------|------|\n| type | int | 是 | 推广分类 ID（cate_id） |\n\n### 返回 data（数组）\n| 字段 | 说明 |\n|------|------|\n| id | 绑定记录 ID |\n| product_id | 商品 ID |\n| product_number | 商品编号 |\n| product_image | 主图 |\n| sort | 排序 |"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"操作成功\",\n  \"data\": [\n    {\n      \"id\": 1,\n      \"product_id\": 10,\n      \"product_number\": \"PD-20260924-1\",\n      \"product_image\": \"https://example.com/a.jpg\",\n      \"sort\": 50\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "推广商品绑定",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": 1,\n  \"product_ids\": [10, 11, 12],\n  \"sort\": 50\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProductPromo/add?api_token={{api_token}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProductPromo", "add"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" }
+              ]
+            },
+            "description": "## 绑定推广商品\n\n已绑定未删则跳过；已软删则恢复。\n\n### 请求字段\n| 字段 | 类型 | 必填 | 说明 |\n|------|------|------|------|\n| type | int | 是 | 推广分类 ID |\n| product_ids | array/string | 是 | 商品 ID 数组或逗号串 |\n| sort | int | 否 | 默认排序，默认 50 |\n\n### 返回\n| 字段 | 说明 |\n|------|------|\n| data | 成功绑定数量 |\n| msg | 如：成功绑定2个商品 |"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"成功绑定2个商品\",\n  \"data\": 2\n}"
+            }
+          ]
+        },
+        {
+          "name": "推广商品移除",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "id", "value": "1", "description": "绑定记录 ID" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProductPromo/remove?api_token={{api_token}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProductPromo", "remove"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" }
+              ]
+            },
+            "description": "## 软删除推广绑定\n\n### 请求字段\n| 字段 | 类型 | 必填 | 说明 |\n|------|------|------|------|\n| id | int | 是 | 绑定记录 ID |"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"操作成功\",\n  \"data\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "推广商品改排序",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "id", "value": "1" },
+                { "key": "sort", "value": "10" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProductPromo/editSort?api_token={{api_token}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProductPromo", "editSort"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" }
+              ]
+            },
+            "description": "## 修改推广商品排序\n\n### 请求字段\n| 字段 | 类型 | 必填 | 说明 |\n|------|------|------|------|\n| id | int | 是 | 绑定记录 ID |\n| sort | int | 是 | 排序值，越小越前 |"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"操作成功\",\n  \"data\": true\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. 商品评论",
+      "description": "后台评论/回复/审核",
+      "item": [
+        {
+          "name": "评论列表",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProductComment/list?api_token={{api_token}}&page=1&size=20&keyword=&score_type=&audit_status=&product_id=",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProductComment", "list"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" },
+                { "key": "page", "value": "1" },
+                { "key": "size", "value": "20" },
+                { "key": "keyword", "value": "", "description": "评论内容/客户姓名/商品名称", "disabled": true },
+                { "key": "comment_scores", "value": "", "description": "精确星级 1-5", "disabled": true },
+                { "key": "score_type", "value": "", "description": "5=五星；4=四星；3=三星及以下", "disabled": true },
+                { "key": "audit_status", "value": "", "description": "0待审 / 1通过 / 2驳回", "disabled": true },
+                { "key": "product_id", "value": "", "description": "关联商品 ID", "disabled": true }
+              ]
+            },
+            "description": "## 评论列表\n\n### 请求字段\n| 字段 | 类型 | 必填 | 说明 |\n|------|------|------|------|\n| keyword | string | 否 | 内容/姓名/商品名 |\n| comment_scores | int | 否 | 精确星级 |\n| score_type | int | 否 | 5/4/3（三星及以下） |\n| audit_status | int | 否 | 0待审 1通过 2驳回 |\n| product_id | int | 否 | 商品 ID |\n\n### 返回 items 字段\n| 字段 | 说明 |\n|------|------|\n| comment_id | 评论 ID |\n| product_id / product_name | 商品 |\n| user_name | 客户姓名 |\n| comment_scores | 评分 1-5 |\n| comment_content | 内容 |\n| comment_image | 图片逗号串 |\n| comment_images | 图片数组 |\n| audit_status / audit_status_text | 审核状态 |\n| comment_time | 评论时间 |\n| reply_list | 回复列表 |\n| reply_num | 回复数 |"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"操作成功\",\n  \"data\": {\n    \"items\": [\n      {\n        \"comment_id\": 1,\n        \"product_id\": 10,\n        \"product_name\": \"折叠桌\",\n        \"user_name\": \"张三\",\n        \"comment_scores\": 5,\n        \"comment_content\": \"很好用\",\n        \"comment_image\": \"https://example.com/1.jpg\",\n        \"comment_images\": [\"https://example.com/1.jpg\"],\n        \"audit_status\": 0,\n        \"audit_status_text\": \"待审核\",\n        \"comment_time\": \"2026-09-24 12:00:00\",\n        \"reply_list\": [],\n        \"reply_num\": 0\n      }\n    ],\n    \"page\": 1,\n    \"records\": 1,\n    \"size\": 20,\n    \"total\": 1\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "评论统计",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProductComment/statistics?api_token={{api_token}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProductComment", "statistics"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" }
+              ]
+            },
+            "description": "## 评论统计卡片\n\n### 返回 data\n| 字段 | 说明 |\n|------|------|\n| total_count | 评论总数 |\n| pending_count | 待审核 |\n| passed_count | 已通过 |\n| rejected_count | 已驳回 |\n| avg_score | 平均分（1 位小数） |\n| replied_count | 已回复评论数 |"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"操作成功\",\n  \"data\": {\n    \"total_count\": 100,\n    \"pending_count\": 10,\n    \"passed_count\": 80,\n    \"rejected_count\": 10,\n    \"avg_score\": 4.5,\n    \"replied_count\": 60\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "评论新增",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": 10,\n  \"product_name\": \"折叠桌\",\n  \"user_name\": \"张三\",\n  \"comment_scores\": 5,\n  \"comment_content\": \"很好用，推荐\",\n  \"comment_image\": \"https://example.com/1.jpg,https://example.com/2.jpg\",\n  \"comment_time\": \"2026-09-24 12:00:00\",\n  \"audit_status\": 0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProductComment/add?api_token={{api_token}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProductComment", "add"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" }
+              ]
+            },
+            "description": "## 新增主评论（后台录入）\n\n未传 comment_time 则用当前时间；未传 audit_status 默认待审核。\n\n### 请求字段\n| 字段 | 类型 | 必填 | 说明 |\n|------|------|------|------|\n| product_name | string | 是 | 商品名称 |\n| user_name | string | 是 | 客户姓名 |\n| comment_scores | int | 是 | 1-5 |\n| product_id | int | 否 | 关联商品 ID |\n| comment_content | string | 否 | 内容 |\n| comment_image | string/array | 否 | 图片，逗号分隔或数组 |\n| comment_time | string/int | 否 | 日期时间或时间戳 |\n| audit_status | int | 否 | 0待审 1通过 2驳回 |"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"操作成功\",\n  \"data\": {\n    \"comment_id\": 1\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "评论编辑",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"comment_id\": 1,\n  \"product_id\": 10,\n  \"product_name\": \"折叠桌\",\n  \"user_name\": \"张三\",\n  \"comment_scores\": 4,\n  \"comment_content\": \"更新后的评价\",\n  \"comment_image\": \"https://example.com/1.jpg\",\n  \"comment_time\": \"2026-09-24 12:00:00\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProductComment/edit?api_token={{api_token}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProductComment", "edit"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" }
+              ]
+            },
+            "description": "## 编辑主评论\n\n未传 `audit_status` 不会覆盖原审核状态。\n\n### 请求字段\n同新增，另需 `comment_id`。"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"操作成功\",\n  \"data\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "评论审核",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "comment_id", "value": "1" },
+                { "key": "audit_status", "value": "1", "description": "0待审 / 1通过 / 2驳回" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProductComment/audit?api_token={{api_token}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProductComment", "audit"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" }
+              ]
+            },
+            "description": "## 评论审核\n\n### 请求字段\n| 字段 | 类型 | 必填 | 说明 |\n|------|------|------|------|\n| comment_id | int | 是 | 评论 ID |\n| audit_status | int | 是 | 0待审 / 1通过 / 2驳回 |"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"操作成功\",\n  \"data\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "评论删除",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "comment_id", "value": "1" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProductComment/remove?api_token={{api_token}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProductComment", "remove"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" }
+              ]
+            },
+            "description": "## 软删除主评论\n\n会同步软删其下回复。\n\n### 请求字段\n| 字段 | 类型 | 必填 | 说明 |\n|------|------|------|------|\n| comment_id | int | 是 | 评论 ID |"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"操作成功\",\n  \"data\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "评论回复新增",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"comment_id\": 1,\n  \"reply_content\": \"感谢您的反馈！\",\n  \"reply_time\": \"2026-09-24 13:00:00\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProductComment/addReply?api_token={{api_token}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProductComment", "addReply"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" }
+              ]
+            },
+            "description": "## 添加回复\n\n### 请求字段\n| 字段 | 类型 | 必填 | 说明 |\n|------|------|------|------|\n| comment_id | int | 是 | 主评论 ID |\n| reply_content | string | 是 | 回复内容 |\n| reply_time | string/int | 否 | 不传则当前时间 |"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"操作成功\",\n  \"data\": {\n    \"reply_id\": 1\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "评论回复编辑",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reply_id\": 1,\n  \"reply_content\": \"感谢您的反馈，欢迎再次光临！\",\n  \"reply_time\": \"2026-09-24 13:30:00\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProductComment/editReply?api_token={{api_token}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProductComment", "editReply"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" }
+              ]
+            },
+            "description": "## 编辑回复\n\n### 请求字段\n| 字段 | 类型 | 必填 | 说明 |\n|------|------|------|------|\n| reply_id | int | 是 | 回复 ID |\n| reply_content | string | 是 | 内容 |\n| reply_time | string/int | 否 | 不传则不改时间 |"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"操作成功\",\n  \"data\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "评论回复删除",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "reply_id", "value": "1" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/pt/newProductComment/removeReply?api_token={{api_token}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["manage", "pt", "newProductComment", "removeReply"],
+              "query": [
+                { "key": "api_token", "value": "{{api_token}}" }
+              ]
+            },
+            "description": "## 软删除回复\n\n### 请求字段\n| 字段 | 类型 | 必填 | 说明 |\n|------|------|------|------|\n| reply_id | int | 是 | 回复 ID |"
+          },
+          "response": [
+            {
+              "name": "成功示例",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": 200,\n  \"code\": 200,\n  \"msg\": \"操作成功\",\n  \"data\": true\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

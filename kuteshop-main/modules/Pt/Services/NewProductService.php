@@ -4,6 +4,7 @@ namespace Modules\Pt\Services;
 
 use App\Exceptions\ErrorException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
 use Kuteshop\Core\Service\BaseService;
 use Modules\Pt\Repositories\Contracts\NewProductRentPeriodRepository;
 use Modules\Pt\Repositories\Contracts\NewProductRentPriceRepository;
@@ -41,6 +42,9 @@ class NewProductService extends BaseService
     const LIST_STATUS_ON = 1;
     /** 列表筛选-待审核 */
     const LIST_STATUS_PENDING = 2;
+
+    /** Redis 库存缓存 key 前缀 */
+    const REDIS_STOCK_KEY_PREFIX = 'new_product:stock:';
 
     private $newProductRentPriceRepository;
     private $newProductRentPeriodRepository;
@@ -154,6 +158,7 @@ class NewProductService extends BaseService
                 // 编辑不改上下架、审核状态、商品编号
                 $result = $this->repository->edit($product_id, $product_row);
             } else {
+                $exist = null;
                 $product_row['product_add_time'] = $now;
                 $product_row['is_deleted'] = 0;
                 $product_row['product_state'] = self::PRODUCT_STATE_OFF;
@@ -180,6 +185,17 @@ class NewProductService extends BaseService
             }
 
             DB::commit();
+
+            // 已上架商品编辑时，库存按增量调整 Redis（避免覆盖业务扣减）
+            if ($exist && (int)($exist['product_state'] ?? 0) === self::PRODUCT_STATE_ON) {
+                $old_stock = (int)($exist['stock_total'] ?? 0);
+                $new_stock = (int)($product_row['stock_total'] ?? 0);
+                $delta = $new_stock - $old_stock;
+                if ($delta !== 0) {
+                    $this->adjustProductStock($product_id, $delta, $new_stock);
+                }
+            }
+
             return ['product_id' => $product_id];
         } catch (\Exception $e) {
             DB::rollBack();
@@ -384,6 +400,13 @@ class NewProductService extends BaseService
             throw new ErrorException('更新失败');
         }
 
+        // 上架：库存写入 Redis；下架：清除缓存
+        if ($product_state === self::PRODUCT_STATE_ON) {
+            $this->cacheProductStock($product_id, (int)($product['stock_total'] ?? 0));
+        } else {
+            $this->forgetProductStock($product_id);
+        }
+
         return true;
     }
 
@@ -489,6 +512,8 @@ class NewProductService extends BaseService
             throw new ErrorException('删除失败');
         }
 
+        $this->forgetProductStock($product_id);
+
         return true;
     }
 
@@ -505,6 +530,128 @@ class NewProductService extends BaseService
         }
 
         return $product;
+    }
+
+    /**
+     * 定时补齐：已上架商品若 Redis 库存缺失则重新写入
+     * @return array{total:int,missing:int,fixed:int}
+     */
+    public function syncOnShelfStockCache()
+    {
+        $products = $this->repository->find([
+            ['is_deleted', '=', 0],
+            ['product_state', '=', self::PRODUCT_STATE_ON],
+        ]) ?: [];
+
+        $total = count($products);
+        $missing = 0;
+        $fixed = 0;
+
+        foreach ($products as $product) {
+            $product_id = (int)$product['product_id'];
+            $key = $this->getStockCacheKey($product_id);
+            if (Redis::exists($key)) {
+                continue;
+            }
+            $missing++;
+            $this->cacheProductStock($product_id, (int)($product['stock_total'] ?? 0));
+            $fixed++;
+        }
+
+        return [
+            'total' => $total,
+            'missing' => $missing,
+            'fixed' => $fixed,
+        ];
+    }
+
+    /**
+     * 全量刷新：已上架商品库存全部重新 SET 到 Redis（以库表为准）
+     * @return array{total:int,fixed:int}
+     */
+    public function refreshOnShelfStockCache()
+    {
+        $products = $this->repository->find([
+            ['is_deleted', '=', 0],
+            ['product_state', '=', self::PRODUCT_STATE_ON],
+        ]) ?: [];
+
+        $fixed = 0;
+        foreach ($products as $product) {
+            $this->cacheProductStock(
+                (int)$product['product_id'],
+                (int)($product['stock_total'] ?? 0)
+            );
+            $fixed++;
+        }
+
+        return [
+            'total' => count($products),
+            'fixed' => $fixed,
+        ];
+    }
+
+    /**
+     * Redis 库存 key：new_product:stock:{product_id}
+     */
+    private function getStockCacheKey($product_id)
+    {
+        return self::REDIS_STOCK_KEY_PREFIX . (int)$product_id;
+    }
+
+    /**
+     * 上架时将库存写入 Redis（值：stock_total）
+     */
+    private function cacheProductStock($product_id, $stock_total)
+    {
+        try {
+            Redis::set($this->getStockCacheKey($product_id), (int)$stock_total);
+        } catch (\Exception $e) {
+            throw new ErrorException('库存写入缓存失败：' . ($e->getMessage() ?: 'Redis异常'));
+        }
+    }
+
+    /**
+     * 编辑库存：对 Redis 做增量（加/减），避免覆盖并发扣减
+     * key 不存在时按新库存绝对值写入
+     * @param int $product_id
+     * @param int $delta 新库存 - 旧库存（可正可负）
+     * @param int $fallbackAbsolute key 缺失时写入的绝对值
+     */
+    private function adjustProductStock($product_id, $delta, $fallbackAbsolute)
+    {
+        $delta = (int)$delta;
+        if ($delta === 0) {
+            return;
+        }
+
+        try {
+            $key = $this->getStockCacheKey($product_id);
+            if (!Redis::exists($key)) {
+                Redis::set($key, max(0, (int)$fallbackAbsolute));
+                return;
+            }
+
+            $after = (int)Redis::incrby($key, $delta);
+            // 减库存后不允许为负
+            if ($after < 0) {
+                Redis::set($key, 0);
+            }
+        } catch (\Exception $e) {
+            throw new ErrorException('库存缓存调整失败：' . ($e->getMessage() ?: 'Redis异常'));
+        }
+    }
+
+    /**
+     * 下架时清除 Redis 库存缓存
+     */
+    private function forgetProductStock($product_id)
+    {
+        try {
+            Redis::del($this->getStockCacheKey($product_id));
+        } catch (\Exception $e) {
+            throw new ErrorException('库存缓存清除失败：' . ($e->getMessage() ?: 'Redis异常'));
+        }
     }
 
     private function formatStatusText($row)

@@ -69,6 +69,30 @@ $router->group(['prefix' => 'manage/trade', 'namespace' => 'Manage', 'middleware
     //推广订单列表
     $router->get('/distributionOrder/list', 'DistributionOrderController@list');
 
+    //新购买订单（与旧订单隔离）
+    $router->get('/newOrder/list', 'NewOrderController@list');
+    $router->get('/newOrder/get', 'NewOrderController@get');
+    $router->post('/newOrder/add', 'NewOrderController@add');
+    $router->post('/newOrder/assignWarehouse', 'NewOrderController@assignWarehouse');
+    $router->post('/newOrder/addTag', 'NewOrderController@addTag');
+    $router->post('/newOrder/removeTag', 'NewOrderController@removeTag');
+    $router->post('/newOrder/addRemark', 'NewOrderController@addRemark');
+    $router->post('/newOrder/refund', 'NewOrderController@refund');
+
+    //新租赁订单（与旧订单 / 新购买订单隔离）
+    $router->get('/newRentOrder/list', 'NewRentOrderController@list');
+    $router->get('/newRentOrder/get', 'NewRentOrderController@get');
+    $router->post('/newRentOrder/add', 'NewRentOrderController@add');
+    $router->post('/newRentOrder/assignWarehouse', 'NewRentOrderController@assignWarehouse');
+    $router->post('/newRentOrder/addTag', 'NewRentOrderController@addTag');
+    $router->post('/newRentOrder/removeTag', 'NewRentOrderController@removeTag');
+    $router->post('/newRentOrder/addRemark', 'NewRentOrderController@addRemark');
+    $router->post('/newRentOrder/refund', 'NewRentOrderController@refund');
+    $router->post('/newRentOrder/returnRent', 'NewRentOrderController@returnRent');
+    $router->post('/newRentOrder/renew', 'NewRentOrderController@renew');
+    $router->post('/newRentOrder/buyout', 'NewRentOrderController@buyout');
+    $router->post('/newRentOrder/repair', 'NewRentOrderController@repair');
+
 });
 
 /**
